@@ -13,14 +13,17 @@
     "LICENSE",
     "README.md"
   ],
-  "homepage": "https://github.com/mwittig/node-milight-io",
+  "homepage": "https://github.com/mlaurijsse/node-milight-io",
+  "scripts": {
+    "test": "./node_modules/.bin/gulp"
+  },
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/mwittig/node-milight-io"
+    "url": "https://github.com/mlaurijsse/node-milight-io"
   },
   "bugs": {
-    "url": "https://github.com/mwittig/node-milight-io/issues"
+    "url": "https://github.com/mlaurijsse/node-milight-io/issues"
   },
   "keywords": [
     "SmartHome",
@@ -31,7 +34,15 @@
     "SPI"
   ],
   "dependencies": {
-    "bluebird": "^3.1.1",
+    "bluebird": "^3.3.3",
     "serialport": "^2.0.0"
+  },
+  "devDependencies": {
+    "gulp": "^3.9.1",
+    "gulp-coveralls": "^0.1.4",
+    "gulp-istanbul": "^0.10.3",
+    "gulp-jasmine": "^2.3.0",
+    "gulp-plumber": "^1.1.0",
+    "lodash": "^4.6.1"
   }
 }
