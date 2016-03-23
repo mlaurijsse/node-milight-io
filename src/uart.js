@@ -1,13 +1,9 @@
-var Promise = require('bluebird'),
-    dgram = require('dgram'),
-    debug = process.env.hasOwnProperty('MILIGHT_DEBUG') ? consoleDebug : function () {
-    };
+var SerialPort = require("serialport").SerialPort;
 
-const
-    DEFAULT_IP = '255.255.255.255',
-    DEFAULT_PORT = 8899,
-    DEFAULT_COMMAND_DELAY = 30,
-    DEFAULT_COMMAND_REPEAT = 3,
+
+const     DEFAULT_COMMAND_DELAY = 30,
+          DEFAULT_COMMAND_REPEAT = 3,
+          DEFAULT_DEVICE = '/dev/ttyS0';
 
 //
 // Local helper functions
@@ -27,7 +23,7 @@ function consoleDebug() {
 }
 
 //
-// Class MilightController
+// Class MiLightUARTController
 //
 
 /**
@@ -35,20 +31,17 @@ function consoleDebug() {
  * @param options
  * @constructor
  */
-var MilightController = function (options) {
+var MiLightUARTController = function (options) {
     options = options || {};
 
-    this.ip = options.ip || DEFAULT_IP;
-    this._broadcastMode = this.ip === DEFAULT_IP;
-    this.port = options.port || DEFAULT_PORT;
+    this.device = options.device || DEFAULT_DEVICE;
     this._delayBetweenCommands = options.delayBetweenCommands || DEFAULT_COMMAND_DELAY;
     this._commandRepeat = options.commandRepeat || DEFAULT_COMMAND_REPEAT;
     this._socketInit = Promise.resolve();
     this._lastRequest = this._createSocket();
     this._sendRequest = Promise.resolve();
-    debug("Milight:" + JSON.stringify({
-        ip: this.ip,
-        port: this.port,
+    debug("Milight-Uart:" + JSON.stringify({
+        dev: this.device,
         delayBetweenCommands: this._delayBetweenCommands,
         commandRepeat: this._commandRepeat
     }));
@@ -58,7 +51,7 @@ var MilightController = function (options) {
 // Private member functions
 //
 
-MilightController.prototype._createSocket = function () {
+MiLightUARTController.prototype._createSocket = function () {
     var self = this;
 
     return Promise.settle([self._socketInit]).then(function () {
@@ -90,7 +83,7 @@ MilightController.prototype._createSocket = function () {
 };
 
 
-MilightController.prototype._sendThreeByteArray = function (threeByteArray) {
+MiLightUARTController.prototype._sendThreeByteArray = function (threeByteArray) {
     if (!threeByteArray instanceof Array) {
         return Promise.reject(new Error("Array argument required"));
     }
@@ -135,7 +128,7 @@ MilightController.prototype._sendThreeByteArray = function (threeByteArray) {
  * @param varArgArray
  * @returns {*}
  */
-MilightController.prototype.sendCommands = function (varArgArray) {
+MiLightUARTController.prototype.sendCommands = function (varArgArray) {
     var stackedCommands = [],
         varArgs = arguments,
         self = this;
@@ -170,7 +163,7 @@ MilightController.prototype.sendCommands = function (varArgArray) {
  * @param ms
  * @returns {*}
  */
-MilightController.prototype.pause = function (ms) {
+MiLightUARTController.prototype.pause = function (ms) {
     var self = this;
     ms = ms || 100;
 
@@ -184,7 +177,7 @@ MilightController.prototype.pause = function (ms) {
  *
  * @returns {*}
  */
-MilightController.prototype.close = function () {
+MiLightUARTController.prototype.close = function () {
     var self = this;
 
     return self._lastRequest = Promise.settle([self._lastRequest]).then(function () {
@@ -197,4 +190,4 @@ MilightController.prototype.close = function () {
 };
 
 
-module.exports = MilightController;
+module.exports = MilightUARTController;

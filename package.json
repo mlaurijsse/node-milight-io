@@ -1,10 +1,10 @@
 {
-  "name": "node-milight-promise",
-  "version": "0.0.4",
-  "description": "A node module to control Milight LED bulbs and OEM equivalents auch as Rocket LED, Limitless LED Applamp, Easybulb, s`luce, iLight, iBulb, and Kreuzer",
+  "name": "node-milight-io",
+  "version": "0.0.1",
+  "description": "A node module to control Milight LED bulbs and OEM equivalents via WiFi bridge, UART or SPI",
   "author": {
-    "name": "Marcus Wittig",
-    "url": "https://github.com/mwittig/node-milight-promise"
+    "name": "Marcel Laurijsse",
+    "url": "https://github.com/mlaurijsse/node-milight-io"
   },
   "main": "src/index",
   "files": [
@@ -13,22 +13,25 @@
     "LICENSE",
     "README.md"
   ],
-  "homepage": "https://github.com/mwittig/node-milight-promise",
+  "homepage": "https://github.com/mwittig/node-milight-io",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/mwittig/node-milight-promise"
+    "url": "https://github.com/mwittig/node-milight-io"
   },
   "bugs": {
-    "url": "https://github.com/mwittig/node-milight-promise/issues"
+    "url": "https://github.com/mwittig/node-milight-io/issues"
   },
   "keywords": [
     "SmartHome",
     "Milight",
     "WifiLight",
-    "LED"
+    "LED",
+    "UART",
+    "SPI"
   ],
   "dependencies": {
-    "bluebird": "^3.1.1"
+    "bluebird": "^3.1.1",
+    "serialport": "^2.0.0"
   }
 }
