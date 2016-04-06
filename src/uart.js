@@ -35,10 +35,11 @@ var MiLightUARTController = function (options) {
     options = options || {};
 
     this.device = options.device || DEFAULT_DEVICE;
+    this._baudrate = options.baudrate || DEFAULT_BAUDRATE;
     this._delayBetweenCommands = options.delayBetweenCommands || DEFAULT_COMMAND_DELAY;
     this._commandRepeat = options.commandRepeat || DEFAULT_COMMAND_REPEAT;
-    this._socketInit = Promise.resolve();
-    this._lastRequest = this._createSocket();
+    this._serialInit = Promise.resolve();
+    this._lastRequest = this._createSerial();
     this._sendRequest = Promise.resolve();
     debug("Milight-Uart:" + JSON.stringify({
         dev: this.device,
@@ -51,32 +52,32 @@ var MiLightUARTController = function (options) {
 // Private member functions
 //
 
-MiLightUARTController.prototype._createSocket = function () {
+MiLightUARTController.prototype._createSerial = function () {
     var self = this;
 
-    return Promise.settle([self._socketInit]).then(function () {
+    return Promise.settle([self._serialInit]).then(function () {
 
-        return self._socketInit = new Promise(function (resolve, reject) {
-            if (self.clientSocket) {
+        return self._serialInit = new Promise(function (resolve, reject) {
+            if (self.serial) {
                 return resolve();
             }
             else {
-                debug("Initializing Socket");
-                var socket = dgram.createSocket('udp4');
+                debug("Initializing SerialPort");
+                var serial = new SerialPort(this.device, {
+                  baudrate: this._baudrate
+                }, false);
 
-                if (self._broadcastMode) {
-                    socket.bind(function () {
-                        socket.setBroadcast(true);
-                        self.clientSocket = socket;
-                        debug("Milight: Initializing Socket (broadcast mode) completed");
-                        return resolve();
-                    });
-                }
-                else {
-                    self.clientSocket = socket;
-                    debug("Milight: Initializing Socket done");
+                serial.open(function (error) {
+                  if ( error ) {
+                    debug('Milight: SerialPort failed to open: ' + error);
+                    return reject(error);
+                  } else {
+                    self.serial = serial;
+                    debug('Milight: SerialPort opened');
                     return resolve();
-                }
+
+                  }
+                });
             }
         });
     });
@@ -84,39 +85,36 @@ MiLightUARTController.prototype._createSocket = function () {
 
 
 MiLightUARTController.prototype._sendThreeByteArray = function (threeByteArray) {
-    if (!threeByteArray instanceof Array) {
-        return Promise.reject(new Error("Array argument required"));
-    }
-    var buffer = new Buffer(threeByteArray),
-        self = this;
+  if (!threeByteArray instanceof Array) {
+    return Promise.reject(new Error("Array argument required"));
+  }
+  var buffer = new Buffer(threeByteArray),
+  self = this;
 
-    return self._sendRequest = Promise.settle([self._sendRequest]).then(function () {
+  return self._sendRequest = Promise.settle([self._sendRequest]).then(function () {
 
-        return new Promise(function (resolve, reject) {
-            self._createSocket().then(function () {
-                self.clientSocket.send(buffer,
-                     0,
-                     buffer.length,
-                     self.port,
-                     self.ip,
-                     function (err, bytes) {
-                        if (err) {
-                            debug("UDP socket error:" + err);
-                            return reject(err);
-                        }
-                        else {
-                            debug('Milight: bytesSent=' + bytes + ', buffer=[' + buffer2hex(buffer) + ']');
-                            return Promise.delay(self._delayBetweenCommands).then(function () {
-                                return resolve();
-                            });
-                        }
-                    }
-                );
-            }).catch(function (error) {
-                return reject(error);
-            });
+    return new Promise(function (resolve, reject) {
+      self._createSerial().then(function () {
+        self.serial.write(buffer, function () {
+          self.serial.drain(function (err) {
+            if (err) {
+              debug("Milight: SerialPort.write error:" + err);
+              return reject(err);
+            }
+            else {
+              debug('Milight: SerialPort.write success; buffer=[' + buffer2hex(buffer) + ']');
+              return Promise.delay(self._delayBetweenCommands).then(function () {
+                return resolve();
+              });
+            }
+          });
+
         });
+      }).catch(function (error) {
+        return reject(error);
+      });
     });
+  });
 };
 
 //
@@ -153,7 +151,7 @@ MiLightUARTController.prototype.sendCommands = function (varArgArray) {
                 }
             }
         }
-        return Promise.settle(stackedCommands)
+        return Promise.settle(stackedCommands);
     });
 };
 
@@ -181,11 +179,14 @@ MiLightUARTController.prototype.close = function () {
     var self = this;
 
     return self._lastRequest = Promise.settle([self._lastRequest]).then(function () {
-        if (self.clientSocket) {
-            self.clientSocket.close();
-            delete self.clientSocket;
+        if (self.serial) {
+            self.serial.close(function () {
+              delete self.serial;
+              return Promise.resolve();
+            });
+        } else {
+          return Promise.resolve();
         }
-        return Promise.resolve();
     });
 };
 
