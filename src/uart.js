@@ -3,7 +3,8 @@ var SerialPort = require("serialport").SerialPort;
 
 const     DEFAULT_COMMAND_DELAY = 30,
           DEFAULT_COMMAND_REPEAT = 3,
-          DEFAULT_DEVICE = '/dev/ttyS0';
+          DEFAULT_DEVICE = '/dev/ttyS0',
+          DEFAULT_BAUDRATE = 9600;
 
 //
 // Local helper functions
@@ -23,7 +24,7 @@ function consoleDebug() {
 }
 
 //
-// Class MiLightUARTController
+// Class MilightUARTController
 //
 
 /**
@@ -31,7 +32,7 @@ function consoleDebug() {
  * @param options
  * @constructor
  */
-var MiLightUARTController = function (options) {
+var MilightUARTController = function (options) {
     options = options || {};
 
     this.device = options.device || DEFAULT_DEVICE;
@@ -52,7 +53,7 @@ var MiLightUARTController = function (options) {
 // Private member functions
 //
 
-MiLightUARTController.prototype._createSerial = function () {
+MilightUARTController.prototype._createSerial = function () {
     var self = this;
 
     return Promise.settle([self._serialInit]).then(function () {
@@ -84,7 +85,7 @@ MiLightUARTController.prototype._createSerial = function () {
 };
 
 
-MiLightUARTController.prototype._sendThreeByteArray = function (threeByteArray) {
+MilightUARTController.prototype._sendThreeByteArray = function (threeByteArray) {
   if (!threeByteArray instanceof Array) {
     return Promise.reject(new Error("Array argument required"));
   }
@@ -126,7 +127,7 @@ MiLightUARTController.prototype._sendThreeByteArray = function (threeByteArray) 
  * @param varArgArray
  * @returns {*}
  */
-MiLightUARTController.prototype.sendCommands = function (varArgArray) {
+MilightUARTController.prototype.sendCommands = function (varArgArray) {
     var stackedCommands = [],
         varArgs = arguments,
         self = this;
@@ -161,7 +162,7 @@ MiLightUARTController.prototype.sendCommands = function (varArgArray) {
  * @param ms
  * @returns {*}
  */
-MiLightUARTController.prototype.pause = function (ms) {
+MilightUARTController.prototype.pause = function (ms) {
     var self = this;
     ms = ms || 100;
 
@@ -175,7 +176,7 @@ MiLightUARTController.prototype.pause = function (ms) {
  *
  * @returns {*}
  */
-MiLightUARTController.prototype.close = function () {
+MilightUARTController.prototype.close = function () {
     var self = this;
 
     return self._lastRequest = Promise.settle([self._lastRequest]).then(function () {

@@ -7,7 +7,7 @@ const
     DEFAULT_IP = '255.255.255.255',
     DEFAULT_PORT = 8899,
     DEFAULT_COMMAND_DELAY = 30,
-    DEFAULT_COMMAND_REPEAT = 3,
+    DEFAULT_COMMAND_REPEAT = 3;
 
 //
 // Local helper functions
