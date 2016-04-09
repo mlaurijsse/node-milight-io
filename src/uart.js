@@ -69,11 +69,9 @@ MilightUARTController.prototype._createSerial = function () {
                 debug("Initializing SerialPort");
                 var serial = new SerialPort(this.device, {
                   baudrate: this._baudrate
-                }, false);
-
-                serial.open(function (error) {
+                }, true, function (error) {
                   if ( error ) {
-                    debug('Milight: SerialPort failed to open: ' + error);
+                    debug('Milight: SerialPort failed to open: ' + error.message);
                     return reject(error);
                   } else {
                     self.serial = serial;
