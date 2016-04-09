@@ -1,8 +1,11 @@
 var SerialPort = require("serialport").SerialPort;
+var Promise = require('bluebird');
+var debug = process.env.hasOwnProperty('MILIGHT_DEBUG') ? consoleDebug : function () {
+};
 
 
-const     DEFAULT_COMMAND_DELAY = 30,
-          DEFAULT_COMMAND_REPEAT = 3,
+const     DEFAULT_COMMAND_DELAY = 0,
+          DEFAULT_COMMAND_REPEAT = 0,
           DEFAULT_DEVICE = '/dev/ttyS0',
           DEFAULT_BAUDRATE = 9600;
 
