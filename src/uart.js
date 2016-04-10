@@ -5,8 +5,8 @@ var debug = process.env.hasOwnProperty('MILIGHT_DEBUG') ? consoleDebug : functio
 
 
 const     DEFAULT_COMMAND_DELAY = 0,
-          DEFAULT_COMMAND_REPEAT = 0,
-          DEFAULT_DEVICE = '/dev/ttyS0',
+          DEFAULT_COMMAND_REPEAT = 1,
+          DEFAULT_DEVICE = '/dev/ttyAMA0',
           DEFAULT_BAUDRATE = 9600;
 
 //
@@ -67,19 +67,24 @@ MilightUARTController.prototype._createSerial = function () {
             }
             else {
                 debug("Initializing SerialPort");
-                var serial = new SerialPort(self.device, {
-                  baudrate: self._baudrate
-                }, true, function (error) {
-                  if ( error ) {
-                    debug('Milight: SerialPort failed to open: ' + error.message);
-                    return reject(error);
-                  } else {
-                    self.serial = serial;
-                    debug('Milight: SerialPort opened');
-                    return resolve();
 
-                  }
-                });
+                try {
+                  var serial = new SerialPort(self.device, {
+                    baudrate: self._baudrate
+                  }, true, function (error) {
+                    if ( error ) {
+                      debug('Milight: SerialPort failed to open: ' + error.message);
+                      return reject(error);
+                    } else {
+                      self.serial = serial;
+                      debug('Milight: SerialPort opened');
+                      return resolve();
+
+                    }
+                  });
+                } catch (err) {
+                  debug('Milight: SerialPort constructor error: ' + err.message);
+                }
             }
         });
     });
