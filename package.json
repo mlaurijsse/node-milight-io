@@ -1,11 +1,11 @@
 {
-  "name": "node-milight-io",
-  "version": "0.0.1",
+  "name": "milight-io",
+  "version": "0.0.2",
   "description": "A node module to control Milight LED bulbs and OEM equivalents via WiFi bridge, UART or SPI",
-  "author": {
-    "name": "Marcel Laurijsse",
-    "url": "https://github.com/mlaurijsse/node-milight-io"
-  },
+  "contributors": [
+      "Marcus Wittig",
+      "Marcel Laurijsse"
+  ],
   "main": "src/index",
   "files": [
     "example",
@@ -14,9 +14,6 @@
     "README.md"
   ],
   "homepage": "https://github.com/mlaurijsse/node-milight-io",
-  "scripts": {
-    "test": "./node_modules/.bin/gulp"
-  },
   "license": "MIT",
   "repository": {
     "type": "git",
@@ -34,15 +31,7 @@
     "SPI"
   ],
   "dependencies": {
-    "bluebird": "^3.3.3",
+    "bluebird": "^3.3.4",
     "serialport": "^2.0.0"
-  },
-  "devDependencies": {
-    "gulp": "^3.9.1",
-    "gulp-coveralls": "^0.1.4",
-    "gulp-istanbul": "^0.10.3",
-    "gulp-jasmine": "^2.3.0",
-    "gulp-plumber": "^1.1.0",
-    "lodash": "^4.6.1"
   }
 }

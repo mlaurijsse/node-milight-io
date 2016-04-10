@@ -26,6 +26,16 @@ function consoleDebug() {
     console.log.apply(this, arguments);
 }
 
+function settlePromise(aPromise) {
+    return aPromise.reflect();
+}
+
+function settlePromises(promisesArray) {
+    return Promise.all(promisesArray.map(function(promise) {
+        return promise.reflect();
+    }));
+}
+
 //
 // Class MilightUARTController
 //
@@ -47,6 +57,7 @@ var MilightUARTController = function (options) {
     this._sendRequest = Promise.resolve();
     debug("Milight-Uart:" + JSON.stringify({
         dev: this.device,
+        baudrate: this._baudrate,
         delayBetweenCommands: this._delayBetweenCommands,
         commandRepeat: this._commandRepeat
     }));
@@ -59,7 +70,7 @@ var MilightUARTController = function (options) {
 MilightUARTController.prototype._createSerial = function () {
     var self = this;
 
-    return Promise.settle([self._serialInit]).then(function () {
+    return settlePromise(self._serialInit).then(function () {
 
         return self._serialInit = new Promise(function (resolve, reject) {
             if (self.serial) {
@@ -84,6 +95,7 @@ MilightUARTController.prototype._createSerial = function () {
                   });
                 } catch (err) {
                   debug('Milight: SerialPort constructor error: ' + err.message);
+                  return reject(error);
                 }
             }
         });
@@ -98,7 +110,7 @@ MilightUARTController.prototype._sendThreeByteArray = function (threeByteArray) 
   var buffer = new Buffer(threeByteArray),
   self = this;
 
-  return self._sendRequest = Promise.settle([self._sendRequest]).then(function () {
+  return self._sendRequest = settlePromise(self._sendRequest).then(function () {
 
     return new Promise(function (resolve, reject) {
       self._createSerial().then(function () {
@@ -138,7 +150,7 @@ MilightUARTController.prototype.sendCommands = function (varArgArray) {
         varArgs = arguments,
         self = this;
 
-    return self._lastRequest = Promise.settle([self._lastRequest]).then(function () {
+    return self._lastRequest = settlePromise(self._lastRequest).then(function () {
 
         for (var r = 0; r < self._commandRepeat; r++) {
             for (var i = 0; i < varArgs.length; i++) {
@@ -158,7 +170,7 @@ MilightUARTController.prototype.sendCommands = function (varArgArray) {
                 }
             }
         }
-        return Promise.settle(stackedCommands);
+        return settlePromises(stackedCommands);
     });
 };
 
@@ -172,7 +184,7 @@ MilightUARTController.prototype.pause = function (ms) {
     var self = this;
     ms = ms || 100;
 
-    return self._lastRequest = Promise.settle([self._lastRequest]).then(function () {
+    return self._lastRequest = settlePromise(self._lastRequest).then(function () {
         return Promise.delay(ms);
     });
 };
@@ -185,7 +197,7 @@ MilightUARTController.prototype.pause = function (ms) {
 MilightUARTController.prototype.close = function () {
     var self = this;
 
-    return self._lastRequest = Promise.settle([self._lastRequest]).then(function () {
+    return self._lastRequest = settlePromise(self._lastRequest).then(function () {
         if (self.serial) {
             self.serial.close(function () {
               delete self.serial;
