@@ -95,7 +95,7 @@ MilightUARTController.prototype._createSerial = function () {
                   });
                 } catch (err) {
                   debug('Milight: SerialPort constructor error: ' + err.message);
-                  return reject(error);
+                  return reject(err);
                 }
             }
         });
